@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="jumbotron bg-light py-5">
+    <div class="container text-center">
+        <h1 class="display-4 font-weight-bold">Automate ESG Reporting</h1>
+        <p class="lead mt-4">Monitor your organization’s emissions and sustainability by automating and streamlining the new CSRD reporting compliance.</p>
+        <p class="lead">Tailor our innovative CSR solutions to optimize your business operations to the new ESRS standards with ease.</p>
+    </div>
+</div>
+
+<div class="container text-center mt-5">
+    <h2 class="font-weight-bold mb-4">Countdown to Mandatory EU imposed ESG reporting</h2>
+
+    <div class="countdown-container d-flex justify-content-center align-items-center">
+        <div class="countdown-item mx-3">
+            <div id="days" class="countdown-number display-4"></div>
+            <div class="countdown-label">Days</div>
+        </div>
+        <div class="countdown-item mx-3">
+            <div id="hours" class="countdown-number display-4"></div>
+            <div class="countdown-label">Hours</div>
+        </div>
+        <div class="countdown-item mx-3">
+            <div id="minutes" class="countdown-number display-4"></div>
+            <div class="countdown-label">Minutes</div>
+        </div>
+        <div class="countdown-item mx-3">
+            <div id="seconds" class="countdown-number display-4"></div>
+            <div class="countdown-label">Seconds</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .countdown-container {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .countdown-item {
+        text-align: center;
+    }
+
+    .countdown-number {
+        font-weight: bold;
+        color: #343a40;
+    }
+
+    .countdown-label {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .expired-message {
+        font-size: 2rem;
+        color: #dc3545;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    // Set the deadline date and time for the ESG Report (format: YYYY-MM-DDTHH:MM:SS)
+    var deadline = new Date("2025-01-01T23:04:00").getTime();
+
+    // Update the countdown every 1 second
+    var x = setInterval(function () {
+
+        // Get the current date and time (start time is now)
+        var now = new Date().getTime();
+
+        // Calculate the remaining time between now and the deadline
+        var distance = deadline - now;
+
+        // Time calculations for days, hours, minutes, and seconds
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        // Display the result in the elements with id="days", "hours", "minutes", "seconds"
+        document.getElementById("days").innerHTML = days;
+        document.getElementById("hours").innerHTML = hours;
+        document.getElementById("minutes").innerHTML = minutes;
+        document.getElementById("seconds").innerHTML = seconds;
+
+        // If the countdown is over, display "EXPIRED"
+        if (distance < 0) {
+            clearInterval(x);
+            document.querySelector(".countdown-container").innerHTML = "<div class='expired-message'>EXPIRED</div>";
+        }
+    }, 1000);
+</script>

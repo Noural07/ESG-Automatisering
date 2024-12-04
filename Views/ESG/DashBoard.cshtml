@@ -1,0 +1,185 @@
+@model List<Frond_end.Models.SensorData>
+
+@{
+    ViewData["Title"] = "DashBoard";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Style for the container holding the charts */
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        /* Style for each chart to make them smaller */
+        .chart-box {
+            width: 45%; /* Adjust this to change the chart width */
+        }
+
+        /* Style the buttons */
+        .filter-buttons {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sensor Data Graphs</h1>
+
+    <!-- Filter buttons -->
+    <div class="filter-buttons">
+        <button onclick="filterData('yesterday')">Yesterday</button>
+        <button onclick="filterData('today')">Today</button>
+        <button onclick="filterData('weekly')">Weekly</button>
+        <button onclick="filterData('monthly')">Monthly</button>
+    </div>
+
+    <!-- Container for the charts -->
+    <div class="chart-container">
+        <!-- GHG Emissions Chart -->
+        <div class="chart-box">
+            <h2>GHG Emissions</h2>
+            <canvas id="ghgEmissionsChart"></canvas>
+        </div>
+
+        <!-- Energy Consumption Chart -->
+        <div class="chart-box">
+            <h2>Energy Consumption</h2>
+            <canvas id="energyConsumptionChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        var data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+        var ghgEmissionsChart, energyConsumptionChart;
+
+        function filterData(period) {
+            var now = new Date();
+            var startDate;
+
+            switch (period) {
+                case 'yesterday':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                    break;
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'weekly':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                    break;
+                case 'monthly':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    break;
+            }
+
+            var filteredData = data.filter(item => new Date(item.Timestamp) >= startDate);
+            updateCharts(filteredData);
+        }
+
+        function updateCharts(filteredData) {
+            var ghgData = filteredData.filter(item => item.MeasurementType === "GHG Emission");
+            var energyData = filteredData.filter(item => item.MeasurementType === "Energy Consumption");
+
+            var ghgLabels = ghgData.map(item => item.Timestamp);
+            var ghgRawValues = ghgData.map(item => item.RawValue);
+            var ghgCalibratedValues = ghgData.map(item => item.CalibratedValue);
+
+            var energyLabels = energyData.map(item => item.Timestamp);
+            var energyRawValues = energyData.map(item => item.RawValue);
+            var energyCalibratedValues = energyData.map(item => item.CalibratedValue);
+
+            if (ghgEmissionsChart) ghgEmissionsChart.destroy();
+            if (energyConsumptionChart) energyConsumptionChart.destroy();
+
+            var ctx1 = document.getElementById('ghgEmissionsChart').getContext('2d');
+            ghgEmissionsChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ghgLabels,
+                    datasets: [
+                        {
+                            label: 'Raw GHG Emission Value',
+                            data: ghgRawValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            fill: true
+                        },
+                        {
+                            label: 'Calibrated GHG Emission Value',
+                            data: ghgCalibratedValues,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 2,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx2 = document.getElementById('energyConsumptionChart').getContext('2d');
+            energyConsumptionChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: energyLabels,
+                    datasets: [
+                        {
+                            label: 'Raw Energy Consumption Value',
+                            data: energyRawValues,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0)',
+                            borderWidth: 2,
+                            fill: true
+                        },
+                        {
+                            label: 'Calibrated Energy Consumption Value',
+                            data: energyCalibratedValues,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0)',
+                            borderWidth: 2,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        filterData('today');
+    </script>
+</body>
+</html>
